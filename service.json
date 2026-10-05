@@ -1,0 +1,79 @@
+{
+    "id": "quickbooks",
+    "name": "QuickBooks",
+    "version": "1.0.0",
+    "description": "Connects the shop to QuickBooks (OAuth2) and adds a 'Push to QuickBooks' button on paid orders that creates a sales invoice. Locked to one named QuickBooks company",
+    "category": "business",
+    "author": {
+        "name": "Gavin Cox"
+    },
+    "license": "proprietary",
+
+    "requires": {
+        "osmium": ">=1.0.0",
+        "php": ">=8.1",
+        "services": []
+    },
+
+    "autoload": [
+        "models"
+    ],
+
+    "migrations": "migrations",
+
+    "hooks": {
+        "order.panels": [
+            "Osmium\\Services\\QuickBooks\\Models\\QuickBooksOrderSync::orderPanel"
+        ],
+        "order.action": [
+            "Osmium\\Services\\QuickBooks\\Models\\QuickBooksOrderSync::orderAction"
+        ]
+    },
+
+    "admin": {
+        "menu": {
+            "section": "Content",
+            "items": [
+                {
+                    "id": "quickbooks",
+                    "label": "QuickBooks",
+                    "icon": "bx bx-receipt",
+                    "route": "admin/settings/quickbooks",
+                    "activePattern": "admin/settings/quickbooks",
+                    "role": null
+                }
+            ]
+        },
+        "routes": {
+            "admin/settings/quickbooks": {
+                "controller": "controllers/QuickBooksController.php",
+                "class": "Osmium\\Services\\QuickBooks\\Controllers\\QuickBooksController",
+                "method": "index",
+                "title": "QuickBooks"
+            },
+            "admin/settings/quickbooks/connect": {
+                "controller": "controllers/QuickBooksController.php",
+                "class": "Osmium\\Services\\QuickBooks\\Controllers\\QuickBooksController",
+                "method": "connect",
+                "title": "QuickBooks"
+            },
+            "admin/settings/quickbooks/callback": {
+                "controller": "controllers/QuickBooksController.php",
+                "class": "Osmium\\Services\\QuickBooks\\Controllers\\QuickBooksController",
+                "method": "callback",
+                "title": "QuickBooks"
+            },
+            "admin/settings/quickbooks/action": {
+                "controller": "controllers/QuickBooksController.php",
+                "class": "Osmium\\Services\\QuickBooks\\Controllers\\QuickBooksController",
+                "method": "action",
+                "title": "QuickBooks"
+            }
+        }
+    },
+
+    "setup": {
+        "requiresConnection": true,
+        "postInstallNote": "Pushing is locked until configured. Create an Intuit developer app (accounting scope), enter its client ID/secret on the settings page and add the shown redirect URI to the app's Redirect URIs. Connect, then set 'Allowed company' to the exact name of the connected QuickBooks company - pushes are refused unless it matches. Pushing creates real invoices. Non-US companies must also set a tax code ID."
+    }
+}

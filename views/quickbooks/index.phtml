@@ -1,0 +1,146 @@
+<?php $quickbooks = $admin['quickbooks']; ?>
+<div class="d-flex justify-content-between align-items-center py-3 mb-4">
+    <h4 class="mb-0">
+        <span class="text-muted fw-light">Services /</span> QuickBooks
+    </h4>
+    <button type="submit" form="settings-form" class="btn btn-primary">
+        <i class="bx bx-save me-1"></i> Save Settings
+    </button>
+</div>
+
+<?php if ($admin['flash'] ?? null): ?>
+    <div class="alert alert-<?= \htmlspecialchars($admin['flash']['type']) ?> alert-dismissible fade show" role="alert">
+        <?= \htmlspecialchars($admin['flash']['text']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
+<?php if ($quickbooks['error']): ?>
+    <div class="alert alert-danger"><i class="bx bx-error-circle me-1"></i> <?= \htmlspecialchars($quickbooks['error']) ?></div>
+<?php endif; ?>
+
+<?php if ($quickbooks['justConnected']): ?>
+    <div class="alert alert-success"><i class="bx bx-check-circle me-1"></i> Connected to QuickBooks.</div>
+<?php endif; ?>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="alert alert-warning">
+            <i class="bx bx-error-circle me-1"></i>
+            Pushing an order creates a real <strong>posted</strong> invoice in QuickBooks. Pushes are refused until
+            <em>Allowed company</em> below exactly matches the connected company.
+        </div>
+
+        <form method="POST" action="<?= $admin['basePath'] ?>settings/quickbooks/" id="settings-form">
+            <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="bx bx-receipt me-2"></i>QuickBooks app</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="client_id" class="form-label fw-semibold">Client ID</label>
+                        <input type="text" class="form-control" id="client_id" name="client_id"
+                            value="<?= \htmlspecialchars($quickbooks['clientId']) ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="client_secret" class="form-label fw-semibold">Client Secret</label>
+                        <input type="password" class="form-control" id="client_secret" name="client_secret" autocomplete="new-password"
+                            <?= $quickbooks['hasSecret'] ? 'placeholder="Leave blank to keep current"' : '' ?>>
+                        <div class="form-text">Stored server-side and never shown again.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="redirect_uri" class="form-label fw-semibold">Redirect URI</label>
+                        <input type="text" class="form-control" id="redirect_uri" name="redirect_uri"
+                            value="<?= \htmlspecialchars($quickbooks['redirectUri']) ?>">
+                        <div class="form-text">Must match an entry under "OAuth 2.0 redirect URIs" on the QuickBooks app exactly (protocol, trailing slash, everything).</div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="sandbox" name="sandbox" value="1"
+                            <?= $quickbooks['sandbox'] ? 'checked' : '' ?>>
+                        <label for="sandbox" class="form-check-label">Sandbox company (development keys)</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="tax_code_id" class="form-label fw-semibold">Tax code ID <span class="text-muted fw-normal">(optional)</span></label>
+                            <input type="text" class="form-control" id="tax_code_id" name="tax_code_id"
+                                value="<?= \htmlspecialchars($quickbooks['taxCodeId']) ?>">
+                            <div class="form-text">Applied to every line. Required by QuickBooks companies outside the US (e.g. the ID of "20.0% S" in the UK); leave blank in the US.</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="sales_item_id" class="form-label fw-semibold">Sales item ID</label>
+                            <input type="text" class="form-control" id="sales_item_id" name="sales_item_id"
+                                value="<?= \htmlspecialchars($quickbooks['salesItemId']) ?>">
+                            <div class="form-text">ID of the QuickBooks product/service that income is booked to (Products and services, the ID is in the edit URL). New companies have "Services" as ID 1.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="allowed_company_name" class="form-label fw-semibold">Allowed company</label>
+                            <input type="text" class="form-control" id="allowed_company_name" name="allowed_company_name"
+                                value="<?= \htmlspecialchars($quickbooks['allowedCompanyName']) ?>">
+                            <div class="form-text">Exact name of the QuickBooks company pushes may go to.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0">Connection</h5></div>
+            <div class="card-body">
+                <?php if (!$quickbooks['clientConfigured']): ?>
+                    <div class="alert alert-warning mb-0">Save a client ID and secret first.</div>
+                <?php elseif ($quickbooks['connected']): ?>
+                    <p class="mb-1">
+                        <span class="badge bg-success">Connected</span>
+                        to <strong><?= \htmlspecialchars($quickbooks['companyName'] ?? '') ?></strong>
+                    </p>
+                    <p class="text-muted small mb-4">Connected since <?= \htmlspecialchars($quickbooks['connectedAt'] ?? '') ?></p>
+                    <button type="button" class="btn btn-outline-primary" onclick="testConnection()">
+                        <i class="bx bx-refresh me-1"></i> Test Connection
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="disconnectQuickBooks()">
+                        <i class="bx bx-unlink me-1"></i> Disconnect
+                    </button>
+                    <div id="quickbooksActionResult" class="mt-3"></div>
+                <?php else: ?>
+                    <p class="text-muted mb-3">Not connected. Orders can't be pushed to QuickBooks until you connect a company.</p>
+                    <a href="<?= $admin['basePath'] ?>settings/quickbooks/connect/" class="btn btn-primary">
+                        <i class="bx bx-link me-1"></i> Connect to QuickBooks
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.csrfToken = <?= \json_encode($template['formToken'] ?? '') ?>;
+
+async function postQuickBooksAction(action) {
+    const response = await fetch('<?= $admin['basePath'] ?>settings/quickbooks/action/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, csrf_token: window.csrfToken }),
+    });
+    return response.json();
+}
+
+async function testConnection() {
+    const resultEl = document.getElementById('quickbooksActionResult');
+    resultEl.textContent = 'Testing...';
+
+    const result = await postQuickBooksAction('test_connection');
+    resultEl.innerHTML = '';
+    const alert = document.createElement('div');
+    alert.className = 'alert mb-0 alert-' + (result.success ? 'success' : 'danger');
+    alert.textContent = result.success ? 'Connected to "' + (result.company || '') + '".' : (result.error || 'Connection test failed');
+    resultEl.appendChild(alert);
+}
+
+async function disconnectQuickBooks() {
+    // Not confirm(): native dialogs block browser automation; reconnecting is one click.
+    const result = await postQuickBooksAction('disconnect');
+    if (result.success) window.location.reload();
+    else document.getElementById('quickbooksActionResult').textContent = result.error || 'Failed to disconnect';
+}
+</script>
