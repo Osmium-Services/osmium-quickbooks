@@ -16,7 +16,7 @@
     </div>
 </div>
 <?php if ($quickbooks['canPush']) : ?>
-<script>
+<script nonce="<?= $cspNonce ?? '' ?>">
 document.addEventListener('DOMContentLoaded', function () {
     var btn = document.getElementById('pushToQuickBooksBtn');
     if (!btn || !window.osmiumOrder) return;

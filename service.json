@@ -1,7 +1,7 @@
 {
     "id": "quickbooks",
     "name": "QuickBooks",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Connects the shop to QuickBooks (OAuth2) and adds a 'Push to QuickBooks' button on paid orders that creates a sales invoice. Locked to one named QuickBooks company",
     "category": "business",
     "author": {
