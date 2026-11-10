@@ -24,7 +24,7 @@
 <?php endif; ?>
 
 <div class="row justify-content-center">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <div class="alert alert-warning">
             <i class="bx bx-error-circle me-1"></i>
             Pushing an order creates a real <strong>posted</strong> invoice in QuickBooks. Pushes are refused until
@@ -58,27 +58,23 @@
                             <?= $quickbooks['sandbox'] ? 'checked' : '' ?>>
                         <label for="sandbox" class="form-check-label">Sandbox company (development keys)</label>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="tax_code_id" class="form-label fw-semibold">Tax code ID <span class="text-muted fw-normal">(optional)</span></label>
-                            <input type="text" class="form-control" id="tax_code_id" name="tax_code_id"
-                                value="<?= \htmlspecialchars($quickbooks['taxCodeId']) ?>">
-                            <div class="form-text">Applied to every line. Required by QuickBooks companies outside the US (e.g. the ID of "20.0% S" in the UK); leave blank in the US.</div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="tax_code_id" class="form-label fw-semibold">Tax code ID <span class="text-muted fw-normal">(optional)</span></label>
+                        <input type="text" class="form-control" id="tax_code_id" name="tax_code_id"
+                            value="<?= \htmlspecialchars($quickbooks['taxCodeId']) ?>">
+                        <div class="form-text">Applied to every line. Required by QuickBooks companies outside the US (e.g. the ID of "20.0% S" in the UK); leave blank in the US.</div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="sales_item_id" class="form-label fw-semibold">Sales item ID</label>
-                            <input type="text" class="form-control" id="sales_item_id" name="sales_item_id"
-                                value="<?= \htmlspecialchars($quickbooks['salesItemId']) ?>">
-                            <div class="form-text">ID of the QuickBooks product/service that income is booked to (Products and services, the ID is in the edit URL). New companies have "Services" as ID 1.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="allowed_company_name" class="form-label fw-semibold">Allowed company</label>
-                            <input type="text" class="form-control" id="allowed_company_name" name="allowed_company_name"
-                                value="<?= \htmlspecialchars($quickbooks['allowedCompanyName']) ?>">
-                            <div class="form-text">Exact name of the QuickBooks company pushes may go to.</div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="sales_item_id" class="form-label fw-semibold">Sales item ID</label>
+                        <input type="text" class="form-control" id="sales_item_id" name="sales_item_id"
+                            value="<?= \htmlspecialchars($quickbooks['salesItemId']) ?>">
+                        <div class="form-text">ID of the QuickBooks product/service that income is booked to (Products and services, the ID is in the edit URL). New companies have "Services" as ID 1.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="allowed_company_name" class="form-label fw-semibold">Allowed company</label>
+                        <input type="text" class="form-control" id="allowed_company_name" name="allowed_company_name"
+                            value="<?= \htmlspecialchars($quickbooks['allowedCompanyName']) ?>">
+                        <div class="form-text">Exact name of the QuickBooks company pushes may go to.</div>
                     </div>
                 </div>
             </div>
